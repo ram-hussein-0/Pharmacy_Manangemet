@@ -2,35 +2,71 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-    // الحقول التي يسمح لارافل بتعبئتها مباشرة (Mass Assignment)
-    // اخترناها بناءً على الأعمدة في صورة الـ ERD
+    use HasApiTokens, HasFactory, Notifiable;
+
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_PHARMACIST = 'pharmacist';
+
     protected $fillable = [
-        'name',     // اسم الموظف
-        'email',    // البريد الإلكتروني (للتسجيل)
-        'password', // كلمة المرور
-        'phone',    // رقم الهاتف
-        'role',     // الدور: admin أو pharmacist
-        'is_active' // حالة الحساب: نشط أم معطل
+        'name',
+        'email',
+        'password',
+        'phone',
+        'role',
+        'is_active',
     ];
 
-    // حماية كلمة المرور عند عرض البيانات
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->is_active
+            && in_array($this->role, [self::ROLE_ADMIN, self::ROLE_PHARMACIST], true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function purchaseInvoices(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoice::class, 'created_by');
+    }
+
+    public function saleInvoices(): HasMany
+    {
+        return $this->hasMany(SaleInvoice::class, 'created_by');
+    }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class, 'created_by');
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class, 'created_by');
+    }
 }
