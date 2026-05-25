@@ -33,8 +33,8 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('products_count')->counts('products')->label('Products'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
             ])
-            ->actions([Tables\Actions\EditAction::make(), Tables\Actions\DeleteAction::make()])
-            ->bulkActions([Tables\Actions\DeleteBulkAction::make()]);
+            ->actions([\Filament\Actions\EditAction::make(), \Filament\Actions\DeleteAction::make()])
+            ->bulkActions([\Filament\Actions\DeleteBulkAction::make()]);
     }
 
     public static function getPages(): array

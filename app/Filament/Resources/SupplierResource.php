@@ -39,7 +39,7 @@ class SupplierResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
             ])
             ->filters([Tables\Filters\TernaryFilter::make('is_active')])
-            ->actions([Tables\Actions\EditAction::make(), Tables\Actions\DeleteAction::make()]);
+            ->actions([\Filament\Actions\EditAction::make(), \Filament\Actions\DeleteAction::make()]);
     }
 
     public static function getPages(): array

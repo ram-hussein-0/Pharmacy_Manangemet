@@ -46,8 +46,8 @@ class ProductResource extends Resource
             Tables\Filters\TernaryFilter::make('is_active'),
             Tables\Filters\SelectFilter::make('category_id')->relationship('category', 'name'),
         ])->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            \Filament\Actions\EditAction::make(),
+            \Filament\Actions\DeleteAction::make(),
         ]);
     }
 
