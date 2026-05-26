@@ -114,6 +114,6 @@ class ProfitLossReport extends Page implements HasForms
 
     public function money(float $value): string
     {
-        return number_format($value, 2) . ' EGP';
+        return number_format($value, 2) . ' SYP';
     }
 }

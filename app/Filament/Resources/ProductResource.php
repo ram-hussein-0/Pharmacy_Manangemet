@@ -23,7 +23,7 @@ class ProductResource extends Resource
             Forms\Components\TextInput::make('name')->required()->maxLength(255),
             Forms\Components\TextInput::make('barcode')->required()->unique(ignoreRecord: true)->maxLength(50),
             Forms\Components\Textarea::make('description')->rows(2)->columnSpanFull(),
-            Forms\Components\TextInput::make('sale_price')->numeric()->required()->minValue(0)->prefix('EGP'),
+            Forms\Components\TextInput::make('sale_price')->numeric()->required()->minValue(0)->prefix('SYP'),
             Forms\Components\TextInput::make('minimum_stock')->numeric()->required()->minValue(0)->default(10),
             Forms\Components\Toggle::make('is_active')->default(true),
         ])->columns(2);
@@ -35,7 +35,7 @@ class ProductResource extends Resource
             Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
             Tables\Columns\TextColumn::make('barcode')->searchable()->fontFamily('mono')->size('xs'),
             Tables\Columns\TextColumn::make('category.name')->badge(),
-            Tables\Columns\TextColumn::make('sale_price')->money('EGP')->sortable(),
+            Tables\Columns\TextColumn::make('sale_price')->money('SYP')->sortable(),
             Tables\Columns\TextColumn::make('current_stock')
                 ->label('Stock')
                 ->badge()

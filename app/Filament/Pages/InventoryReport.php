@@ -83,13 +83,13 @@ class InventoryReport extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('sale_price')
                     ->label('Sale price')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('stock_value')
                     ->label('Stock value')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
             ])

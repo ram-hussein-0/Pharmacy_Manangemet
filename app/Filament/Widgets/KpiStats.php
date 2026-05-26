@@ -47,8 +47,8 @@ class KpiStats extends BaseWidget
                 ->icon('heroicon-o-clock')
                 ->color('danger'),
 
-            Stat::make('Today revenue', number_format($todayRevenue, 2) . ' EGP')
-                ->description('This month: ' . number_format($monthRevenue, 2) . ' EGP')
+            Stat::make('Today revenue', number_format($todayRevenue, 2) . ' SYP')
+                ->description('This month: ' . number_format($monthRevenue, 2) . ' SYP')
                 ->icon('heroicon-o-banknotes')
                 ->color('success'),
         ];

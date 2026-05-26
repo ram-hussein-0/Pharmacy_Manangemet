@@ -52,7 +52,7 @@ class ProductBatchResource extends Resource
                         default    => 'success',
                     }),
                 Tables\Columns\TextColumn::make('quantity')->numeric()->sortable(),
-                Tables\Columns\TextColumn::make('purchase_price')->money('EGP')->sortable(),
+                Tables\Columns\TextColumn::make('purchase_price')->money('SYP')->sortable(),
             ])
             ->filters([
                 Tables\Filters\Filter::make('expired')

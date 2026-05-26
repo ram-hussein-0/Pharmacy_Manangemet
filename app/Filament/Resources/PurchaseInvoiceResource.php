@@ -132,7 +132,7 @@ class PurchaseInvoiceResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')

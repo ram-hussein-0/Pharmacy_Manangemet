@@ -72,7 +72,7 @@ class ExpenseResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('creator.name')

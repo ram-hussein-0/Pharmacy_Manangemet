@@ -38,7 +38,7 @@ class RecentSales extends TableWidget
                     ->placeholder('Walk-in customer'),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
 

@@ -52,7 +52,7 @@ class StockValueByCategoryChart extends ChartWidget
             'labels' => $rows->pluck('name')->all(),
             'datasets' => [
                 [
-                    'label' => 'Stock value (EGP)',
+                    'label' => 'Stock value (SYP)',
                     'data' => $rows->pluck('stock_value')
                         ->map(fn ($value): float => (float) $value)
                         ->all(),

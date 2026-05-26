@@ -86,7 +86,7 @@ class SaleInvoiceResource extends Resource
 
                 Tables\Columns\TextColumn::make('total')
                     ->label('Total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
 
@@ -95,7 +95,7 @@ class SaleInvoiceResource extends Resource
                     ->state(fn (SaleInvoice $record): float => (float) $record->saleItems->sum(
                         fn ($item): float => (float) $item->quantity * ((float) $item->unit_price - (float) $item->purchase_price_at_sale)
                     ))
-                    ->money('EGP')
+                    ->money('SYP')
                     ->color(fn (float $state): string => $state >= 0 ? 'success' : 'danger')
                     ->weight('bold'),
 

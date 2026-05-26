@@ -32,11 +32,11 @@ class PurchaseItemsRelationManager extends RelationManager
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('unit_price')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable(),
             ]);
     }

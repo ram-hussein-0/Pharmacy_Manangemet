@@ -71,25 +71,25 @@ class SalesReport extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('subtotal')
                     ->label('Subtotal')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('discount')
                     ->label('Discount')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('tax')
                     ->label('Tax')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('total')
                     ->label('Total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
 
@@ -98,7 +98,7 @@ class SalesReport extends Page implements HasTable
                     ->state(fn (SaleInvoice $record): float => (float) $record->saleItems->sum(
                         fn ($item): float => (float) $item->quantity * ((float) $item->unit_price - (float) $item->purchase_price_at_sale)
                     ))
-                    ->money('EGP')
+                    ->money('SYP')
                     ->color(fn (float $state): string => $state >= 0 ? 'success' : 'danger')
                     ->weight('bold'),
 

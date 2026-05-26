@@ -50,25 +50,25 @@ class PurchaseReport extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('subtotal')
                     ->label('Subtotal')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('discount')
                     ->label('Discount')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('tax')
                     ->label('Tax')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('total')
                     ->label('Total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
 

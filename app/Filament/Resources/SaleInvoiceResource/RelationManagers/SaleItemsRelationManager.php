@@ -38,23 +38,23 @@ class SaleItemsRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('unit_price')
                     ->label('Sale price')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('purchase_price_at_sale')
                     ->label('Cost at sale')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('line_profit')
                     ->label('Line profit')
                     ->state(fn (SaleItem $record): float => (float) $record->quantity * ((float) $record->unit_price - (float) $record->purchase_price_at_sale))
-                    ->money('EGP')
+                    ->money('SYP')
                     ->color(fn (float $state): string => $state >= 0 ? 'success' : 'danger')
                     ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->weight('bold'),
             ]);

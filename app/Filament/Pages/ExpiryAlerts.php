@@ -78,7 +78,7 @@ class ExpiryAlerts extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('purchase_price')
                     ->label('Purchase price')
-                    ->money('EGP')
+                    ->money('SYP')
                     ->sortable()
                     ->toggleable(),
             ])
