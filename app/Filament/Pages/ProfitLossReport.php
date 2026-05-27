@@ -91,7 +91,7 @@ class ProfitLossReport extends Page implements HasForms
         $sales = SaleInvoice::query()
             ->with('saleItems')
             ->where('status', 'completed')
-            ->whereBetween('invoice_date', [$from, $to])
+            ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()])
             ->get();
 
         $this->salesCount = $sales->count();
@@ -114,6 +114,6 @@ class ProfitLossReport extends Page implements HasForms
 
     public function money(float $value): string
     {
-        return number_format($value, 2) . ' SYP';
+        return 'SYP ' . number_format($value, 2);
     }
 }

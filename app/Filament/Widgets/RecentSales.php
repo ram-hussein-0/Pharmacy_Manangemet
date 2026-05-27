@@ -9,6 +9,8 @@ use Filament\Widgets\TableWidget;
 
 class RecentSales extends TableWidget
 {
+    protected static ?int $sort = 40;
+
     protected static ?string $heading = 'Recent Sales';
 
     protected int|string|array $columnSpan = 'full';

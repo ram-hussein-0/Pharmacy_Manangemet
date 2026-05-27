@@ -24,6 +24,19 @@ class SalesReport extends Page implements HasTable
 
     protected string $view = 'filament.pages.sales-report';
 
+    public int $completedInvoicesCount = 0;
+
+    public float $totalRevenue = 0.0;
+
+    public float $totalGrossProfit = 0.0;
+
+    public float $averageInvoiceValue = 0.0;
+
+    public function mount(): void
+    {
+        $this->loadSummary();
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -38,7 +51,7 @@ class SalesReport extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('invoice_date')
                     ->label('Date')
-                    ->date()
+                    ->date('d M Y')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('customer_name')
@@ -95,9 +108,7 @@ class SalesReport extends Page implements HasTable
 
                 Tables\Columns\TextColumn::make('profit')
                     ->label('Profit')
-                    ->state(fn (SaleInvoice $record): float => (float) $record->saleItems->sum(
-                        fn ($item): float => (float) $item->quantity * ((float) $item->unit_price - (float) $item->purchase_price_at_sale)
-                    ))
+                    ->state(fn (SaleInvoice $record): float => $this->calculateInvoiceProfit($record))
                     ->money('SYP')
                     ->color(fn (float $state): string => $state >= 0 ? 'success' : 'danger')
                     ->weight('bold'),
@@ -146,5 +157,36 @@ class SalesReport extends Page implements HasTable
     {
         return SaleInvoice::query()
             ->with('saleItems');
+    }
+
+    private function loadSummary(): void
+    {
+        $sales = SaleInvoice::query()
+            ->with('saleItems')
+            ->where('status', 'completed')
+            ->get();
+
+        $this->completedInvoicesCount = $sales->count();
+        $this->totalRevenue = (float) $sales->sum('total');
+
+        $this->totalGrossProfit = (float) $sales->sum(
+            fn (SaleInvoice $invoice): float => $this->calculateInvoiceProfit($invoice)
+        );
+
+        $this->averageInvoiceValue = $this->completedInvoicesCount > 0
+            ? $this->totalRevenue / $this->completedInvoicesCount
+            : 0.0;
+    }
+
+    private function calculateInvoiceProfit(SaleInvoice $invoice): float
+    {
+        return (float) $invoice->saleItems->sum(
+            fn ($item): float => (float) $item->quantity * ((float) $item->unit_price - (float) $item->purchase_price_at_sale)
+        );
+    }
+
+    public function money(float $value): string
+    {
+        return 'SYP ' . number_format($value, 2);
     }
 }

@@ -9,6 +9,8 @@ use Filament\Widgets\TableWidget;
 
 class ExpiringBatches extends TableWidget
 {
+    protected static ?int $sort = 30;
+
     protected static ?string $heading = 'Expiring Batches';
 
     protected int|string|array $columnSpan = 'full';

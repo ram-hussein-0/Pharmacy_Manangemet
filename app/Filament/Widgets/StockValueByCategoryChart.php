@@ -7,6 +7,8 @@ use Filament\Widgets\ChartWidget;
 
 class StockValueByCategoryChart extends ChartWidget
 {
+    protected static ?int $sort = 80;
+
     protected ?string $heading = 'Stock Value by Category';
 
     protected ?string $description = 'Calculated from remaining batch quantities and purchase prices.';

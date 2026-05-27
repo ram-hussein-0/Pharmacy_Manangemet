@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LowStockTable extends TableWidget
 {
+    protected static ?int $sort = 20;
+
     protected static ?string $heading = 'Low Stock Products';
 
     protected int|string|array $columnSpan = 'full';
