@@ -58,11 +58,11 @@ class AiDatabaseAssistantService
 
         $answer = $summary;
 
-        if ($intent !== 'unknown' && count($rows) > 0) {
+        if ($intent !== 'unknown' && count($rows) > 0 && filled(config('llm.api_key'))) {
             try {
                 $answer = $this->llm->complete(
-                    systemPrompt: 'You are a helpful pharmacy assistant. Be concise and accurate. Use the same language as the user. Never invent values.',
-                    userPrompt: "User asked: {$question}\nResult JSON: ".json_encode(array_slice($rows, 0, 30))."\nWrite a 2-4 sentence answer using only values from the JSON.",
+                    systemPrompt: 'You are a helpful pharmacy assistant. Be concise and accurate. Use the same language as the user. Never invent values. Do not mention raw JSON, SQL, or technical column keys. Keep product and supplier names exactly as provided.',
+                    userPrompt: "User asked: {$question}\nResult JSON: ".json_encode(array_slice($rows, 0, 30))."\nWrite a short natural answer using only values from the JSON. Prefer clear numbers and avoid unnecessary technical words.",
                 );
             } catch (Throwable $exception) {
                 report($exception);

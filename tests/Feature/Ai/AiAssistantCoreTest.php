@@ -38,7 +38,7 @@ class AiAssistantCoreTest extends TestCase
         );
     }
 
-    public function test_intent_classifier_returns_unknown_when_llm_is_not_configured(): void
+    public function test_intent_classifier_returns_unknown_for_unrelated_question_when_llm_is_not_configured(): void
     {
         config([
             'llm.api_key' => null,
@@ -49,14 +49,34 @@ class AiAssistantCoreTest extends TestCase
             ],
         ]);
 
-        $result = app(IntentClassifier::class)->classify('What is the inventory summary?');
+        $result = app(IntentClassifier::class)->classify('Who won the football match yesterday?');
 
         $this->assertSame('unknown', $result['intent']);
         $this->assertSame([], $result['params']);
     }
 
+
+    public function test_intent_classifier_uses_rule_based_inventory_fallback_without_api_key(): void
+    {
+        config([
+            'llm.api_key' => null,
+            'llm.model' => 'gemini-test',
+            'llm.allowed_intents' => [
+                'inventory_summary',
+                'unknown',
+            ],
+        ]);
+
+        $result = app(IntentClassifier::class)->classify('ما وضع المخزن؟');
+
+        $this->assertSame('inventory_summary', $result['intent']);
+        $this->assertSame([], $result['params']);
+    }
+
     public function test_ai_database_assistant_runs_fixed_inventory_summary_without_real_llm_api(): void
     {
+        config(['llm.api_key' => 'test-key']);
+
         $this->actingAsTestAdmin();
 
         [$supplier, $product] = $this->makeSupplierAndProduct('ai-inventory-summary');
