@@ -38,6 +38,9 @@ Classify into exactly one of these allowed intents:
 
 Optional params:
 - product_name (string) for product_lookup
+- supplier_name (string) for supplier_lookup
+- staff_name (string) for staff_lookup
+- category_name (string) for category_lookup
 - days (int, default 30) for expiring_batches
 - date_from and date_to (YYYY-MM-DD) for sales_between_dates
 - limit (int, default 5) for top_selling_products
@@ -92,6 +95,22 @@ PROMPT;
             return ['intent' => 'unknown', 'params' => []];
         }
 
+        if ($name = $this->extractTaggedEntity($question, ['product', 'medicine', 'drug', 'منتج', 'دواء'])) {
+            return ['intent' => 'product_lookup', 'params' => ['product_name' => $name]];
+        }
+
+        if ($name = $this->extractTaggedEntity($question, ['supplier', 'مورد'])) {
+            return ['intent' => 'supplier_lookup', 'params' => ['supplier_name' => $name]];
+        }
+
+        if ($name = $this->extractTaggedEntity($question, ['staff', 'employee', 'user', 'موظف', 'مستخدم'])) {
+            return ['intent' => 'staff_lookup', 'params' => ['staff_name' => $name]];
+        }
+
+        if ($name = $this->extractTaggedEntity($question, ['category', 'تصنيف', 'فئة'])) {
+            return ['intent' => 'category_lookup', 'params' => ['category_name' => $name]];
+        }
+
         if ($this->hasAny($q, ['low stock', 'minimum stock', 'قليل', 'منخفض', 'ناقص', 'تحت الحد', 'اقل من الحد'])) {
             return ['intent' => 'low_stock_products', 'params' => []];
         }
@@ -137,6 +156,31 @@ PROMPT;
         }
 
         return ['intent' => 'unknown', 'params' => []];
+    }
+
+    /**
+     * @param array<int, string> $labels
+     */
+    private function extractTaggedEntity(string $question, array $labels): ?string
+    {
+        $alternation = implode('|', array_map(fn (string $label): string => preg_quote($label, '/'), $labels));
+        $quotedPattern = '/(?:'.$alternation.')\s*(?::|=|-)?\s*["“”\']([^"“”\']{1,180})["“”\']/iu';
+
+        if (preg_match($quotedPattern, $question, $matches) === 1) {
+            $value = trim($matches[1]);
+
+            return $value !== '' ? $value : null;
+        }
+
+        $taggedPattern = '/(?:'.$alternation.')\s*:\s*([^\r\n]{1,180})$/iu';
+
+        if (preg_match($taggedPattern, $question, $matches) === 1) {
+            $value = trim($matches[1], " \t\n\r\0\x0B\"'“”");
+
+            return $value !== '' ? $value : null;
+        }
+
+        return null;
     }
 
     /**

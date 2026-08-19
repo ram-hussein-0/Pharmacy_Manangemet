@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +13,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductBatch extends Model
 {
+    public function scopeSellable(Builder $query): Builder
+    {
+        return $query
+            ->where('quantity', '>', 0)
+            ->whereDate('expiry_date', '>=', today());
+    }
+
     use HasFactory;
 
     protected $fillable = [

@@ -74,9 +74,10 @@ class InventoryReport extends Page implements HasTable
     {
         return Product::query()
             ->with('category')
-            ->withSum('productBatches as batch_stock', 'quantity')
+            ->withSum(['productBatches as batch_stock' => fn ($query) => $query->sellable()], 'quantity')
             ->addSelect([
                 'stock_value' => ProductBatch::query()
+                    ->sellable()
                     ->selectRaw('COALESCE(SUM(quantity * purchase_price), 0)')
                     ->whereColumn('product_batches.product_id', 'products.id'),
             ]);
@@ -86,12 +87,12 @@ class InventoryReport extends Page implements HasTable
     {
         $products = Product::query()
             ->where('is_active', true)
-            ->withSum('productBatches as batch_stock', 'quantity')
+            ->withSum(['productBatches as batch_stock' => fn ($query) => $query->sellable()], 'quantity')
             ->get();
 
         $this->productsCount = $products->count();
-        $this->unitsInStock = (int) ProductBatch::query()->sum('quantity');
-        $this->totalStockValue = (float) ProductBatch::query()->selectRaw('COALESCE(SUM(quantity * purchase_price), 0) AS value')->value('value');
+        $this->unitsInStock = (int) ProductBatch::query()->sellable()->sum('quantity');
+        $this->totalStockValue = (float) ProductBatch::query()->sellable()->selectRaw('COALESCE(SUM(quantity * purchase_price), 0) AS value')->value('value');
 
         $this->lowStockCount = $products
             ->filter(fn (Product $product): bool => (int) ($product->batch_stock ?? 0) <= (int) $product->minimum_stock)
@@ -102,6 +103,8 @@ class InventoryReport extends Page implements HasTable
             ->selectRaw('COALESCE(SUM(product_batches.quantity * product_batches.purchase_price), 0) AS stock_value')
             ->leftJoin('products', 'products.category_id', '=', 'categories.id')
             ->leftJoin('product_batches', 'product_batches.product_id', '=', 'products.id')
+            ->where('product_batches.quantity', '>', 0)
+            ->whereDate('product_batches.expiry_date', '>=', today())
             ->groupBy('categories.id', 'categories.name')
             ->orderByDesc('stock_value')
             ->limit(8)

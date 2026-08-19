@@ -29,3 +29,6 @@ Thumbs.db
 # Local AI context files
 ai_context/
 .DS_Store
+/audit-output/
+/audit_pharmacy_project.sh
+/db_schema_audit_fixed.php

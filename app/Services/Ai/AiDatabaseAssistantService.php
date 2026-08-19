@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai;
 
+use App\Models\Category;
 use App\Models\Expense;
 use App\Models\Product;
 use App\Models\ProductBatch;
@@ -10,6 +11,7 @@ use App\Models\SaleInvoice;
 use App\Models\SaleItem;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Models\User;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,11 +20,15 @@ use Throwable;
 
 class AiDatabaseAssistantService
 {
+    private readonly EntityResolver $entities;
+
     public function __construct(
         private readonly IntentClassifier $classifier,
         private readonly InventoryService $inventory,
         private readonly LlmClientService $llm,
+        ?EntityResolver $entities = null,
     ) {
+        $this->entities = $entities ?? app(EntityResolver::class);
     }
 
     /**
@@ -61,7 +67,7 @@ class AiDatabaseAssistantService
         if ($intent !== 'unknown' && count($rows) > 0 && filled(config('llm.api_key'))) {
             try {
                 $answer = $this->llm->complete(
-                    systemPrompt: 'You are a helpful pharmacy assistant. Be concise and accurate. Use the same language as the user. Never invent values. Do not mention raw JSON, SQL, or technical column keys. Keep product and supplier names exactly as provided.',
+                    systemPrompt: 'You are a helpful pharmacy assistant. Be concise and accurate. Use the same language as the user. Never invent values. Do not mention raw JSON, SQL, or technical column keys. Keep product, supplier, staff, and category names exactly as provided.',
                     userPrompt: "User asked: {$question}\nResult JSON: ".json_encode(array_slice($rows, 0, 30))."\nWrite a short natural answer using only values from the JSON. Prefer clear numbers and avoid unnecessary technical words.",
                 );
             } catch (Throwable $exception) {
@@ -103,6 +109,9 @@ class AiDatabaseAssistantService
             'profit_loss_summary' => $this->profitLoss(),
             'supplier_summary' => $this->supplierSummary(),
             'product_lookup' => $this->productLookup($params['product_name'] ?? ''),
+            'supplier_lookup' => $this->supplierLookup($params['supplier_name'] ?? ''),
+            'staff_lookup' => $this->staffLookup($params['staff_name'] ?? ''),
+            'category_lookup' => $this->categoryLookup($params['category_name'] ?? ''),
             'stock_movements_summary' => $this->movementsSummary(),
             default => [[], [], 'Sorry — that question is outside what the pharmacy assistant can answer.'],
         };
@@ -275,7 +284,7 @@ class AiDatabaseAssistantService
         $rows = [[
             'total_products' => Product::query()->count(),
             'active_products' => Product::query()->where('is_active', true)->count(),
-            'units_in_stock' => (int) ProductBatch::query()->sum('quantity'),
+            'units_in_stock' => (int) ProductBatch::query()->sellable()->sum('quantity'),
             'stock_value' => (float) $this->inventory->totalStockValue(),
         ]];
 
@@ -339,11 +348,27 @@ class AiDatabaseAssistantService
             return [[], [], 'No product name was provided.'];
         }
 
-        $rows = Product::query()
+        $products = Product::query()
             ->where('name', 'like', "%{$name}%")
             ->with('category:id,name')
             ->limit(20)
-            ->get()
+            ->get();
+
+        $fuzzy = false;
+
+        if ($products->isEmpty()) {
+            $closest = $this->entities->closest('product', $name);
+
+            if ($closest instanceof Product) {
+                $products = Product::query()
+                    ->whereKey($closest->getKey())
+                    ->with('category:id,name')
+                    ->get();
+                $fuzzy = true;
+            }
+        }
+
+        $rows = $products
             ->map(fn (Product $product): array => [
                 'product' => $product->name,
                 'barcode' => $product->barcode,
@@ -355,7 +380,139 @@ class AiDatabaseAssistantService
             ])
             ->all();
 
-        return [$rows, ['product', 'barcode', 'category', 'sale_price', 'current_stock', 'minimum_stock', 'is_active'], count($rows)." match(es) for \"{$name}\"."];
+        $summary = $fuzzy && count($rows) === 1
+            ? 'No exact product match was found; using closest safe match "'.$rows[0]['product'].'".'
+            : count($rows)." match(es) for \"{$name}\".";
+
+        return [$rows, ['product', 'barcode', 'category', 'sale_price', 'current_stock', 'minimum_stock', 'is_active'], $summary];
+    }
+
+    private function supplierLookup(string $name): array
+    {
+        $name = trim($name);
+
+        if ($name === '') {
+            return [[], [], 'No supplier name was provided.'];
+        }
+
+        $query = Supplier::query()
+            ->where('name', 'like', "%{$name}%")
+            ->withCount('purchaseInvoices')
+            ->limit(20);
+        $suppliers = $query->get();
+        $fuzzy = false;
+
+        if ($suppliers->isEmpty()) {
+            $closest = $this->entities->closest('supplier', $name);
+
+            if ($closest instanceof Supplier) {
+                $suppliers = Supplier::query()
+                    ->whereKey($closest->getKey())
+                    ->withCount('purchaseInvoices')
+                    ->get();
+                $fuzzy = true;
+            }
+        }
+
+        $rows = $suppliers->map(fn (Supplier $supplier): array => [
+            'supplier' => $supplier->name,
+            'phone' => $supplier->phone,
+            'email' => $supplier->email,
+            'invoices' => (int) $supplier->purchase_invoices_count,
+            'total_spend' => (float) PurchaseInvoice::query()
+                ->where('supplier_id', $supplier->id)
+                ->where('status', 'completed')
+                ->sum('total'),
+        ])->all();
+
+        $summary = $fuzzy && count($rows) === 1
+            ? 'No exact supplier match was found; using closest safe match "'.$rows[0]['supplier'].'".'
+            : count($rows)." supplier match(es) for \"{$name}\".";
+
+        return [$rows, ['supplier', 'phone', 'email', 'invoices', 'total_spend'], $summary];
+    }
+
+    private function staffLookup(string $name): array
+    {
+        $name = trim($name);
+
+        if ($name === '') {
+            return [[], [], 'No staff name was provided.'];
+        }
+
+        $users = User::query()
+            ->where('name', 'like', "%{$name}%")
+            ->withCount(['saleInvoices', 'purchaseInvoices', 'expenses', 'stockMovements'])
+            ->limit(20)
+            ->get();
+        $fuzzy = false;
+
+        if ($users->isEmpty()) {
+            $closest = $this->entities->closest('staff', $name);
+
+            if ($closest instanceof User) {
+                $users = User::query()
+                    ->whereKey($closest->getKey())
+                    ->withCount(['saleInvoices', 'purchaseInvoices', 'expenses', 'stockMovements'])
+                    ->get();
+                $fuzzy = true;
+            }
+        }
+
+        $rows = $users->map(fn (User $user): array => [
+            'staff' => $user->name,
+            'role' => $user->role,
+            'is_active' => $user->is_active ? 'yes' : 'no',
+            'sales_created' => (int) $user->sale_invoices_count,
+            'purchases_created' => (int) $user->purchase_invoices_count,
+            'expenses_created' => (int) $user->expenses_count,
+            'movements_created' => (int) $user->stock_movements_count,
+        ])->all();
+
+        $summary = $fuzzy && count($rows) === 1
+            ? 'No exact staff match was found; using closest safe match "'.$rows[0]['staff'].'".'
+            : count($rows)." staff match(es) for \"{$name}\".";
+
+        return [$rows, ['staff', 'role', 'is_active', 'sales_created', 'purchases_created', 'expenses_created', 'movements_created'], $summary];
+    }
+
+    private function categoryLookup(string $name): array
+    {
+        $name = trim($name);
+
+        if ($name === '') {
+            return [[], [], 'No category name was provided.'];
+        }
+
+        $categories = Category::query()
+            ->where('name', 'like', "%{$name}%")
+            ->withCount('products')
+            ->limit(20)
+            ->get();
+        $fuzzy = false;
+
+        if ($categories->isEmpty()) {
+            $closest = $this->entities->closest('category', $name);
+
+            if ($closest instanceof Category) {
+                $categories = Category::query()
+                    ->whereKey($closest->getKey())
+                    ->withCount('products')
+                    ->get();
+                $fuzzy = true;
+            }
+        }
+
+        $rows = $categories->map(fn (Category $category): array => [
+            'category' => $category->name,
+            'products' => (int) $category->products_count,
+        ])->all();
+
+        $summary = $fuzzy && count($rows) === 1
+            ? 'No exact category match was found; using closest safe match "'.$rows[0]['category'].'".'
+            : count($rows)." category match(es) for \"{$name}\".";
+
+        return [$rows, ['category', 'products'], $summary];
     }
 
     private function movementsSummary(): array

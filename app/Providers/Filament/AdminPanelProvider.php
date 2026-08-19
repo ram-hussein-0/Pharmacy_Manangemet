@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\AiDatabaseAssistant;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Resources\StaffUserResource;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,8 +14,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -27,9 +29,43 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
+            ->profile(isSimple: false)
+            ->brandName('Pharmacy Management')
+            ->brandLogo(fn () => view('filament.admin.brand-logo'))
+            ->favicon(asset('favicon.ico'))
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->userMenuItems([
+                'profile' => fn (Action $action): Action => $action
+                    ->label('Account settings')
+                    ->icon('heroicon-o-user-circle')
+                    ->sort(0),
+
+                Action::make('dashboard')
+                    ->label('Dashboard')
+                    ->icon('heroicon-o-home')
+                    ->url(fn (): string => Dashboard::getUrl())
+                    ->sort(10),
+
+                Action::make('staff-users')
+                    ->label('Staff Users')
+                    ->icon('heroicon-o-users')
+                    ->url(fn (): string => StaffUserResource::getUrl('index'))
+                    ->sort(20),
+
+                Action::make('ai-assistant')
+                    ->label('AI Assistant')
+                    ->icon('heroicon-o-sparkles')
+                    ->url(fn (): string => AiDatabaseAssistant::getUrl())
+                    ->sort(30),
+
+                'logout' => fn (Action $action): Action => $action
+                    ->label('Sign out')
+                    ->color('danger')
+                    ->sort(100),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -37,10 +73,6 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

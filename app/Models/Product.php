@@ -51,6 +51,12 @@ class Product extends Model
     /** Computed: SUM of remaining batch quantities. */
     protected function currentStock(): Attribute
     {
+        return Attribute::get(fn () => (int) $this->productBatches()->sellable()->sum('quantity'));
+    }
+
+    /** Total physical quantity, including expired batches. */
+    protected function physicalStock(): Attribute
+    {
         return Attribute::get(fn () => (int) $this->productBatches()->sum('quantity'));
     }
 

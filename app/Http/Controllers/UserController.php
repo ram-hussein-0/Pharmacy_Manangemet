@@ -2,77 +2,123 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // 1. عرض كل الموظفين في الصيدلية
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        $users = User::all(); // جلب كل المستخدمين من قاعدة البيانات
-        return response()->json($users); // return view('users.index', compact('users')); // إرسالهم لصفحة العرض
+        $this->ensureAdmin($request);
+
+        $users = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'role', 'is_active', 'created_at', 'updated_at'])
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($users);
     }
 
-    // 2. تخزين موظف جديد (بعد تعبئة الفورم)
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // التأكد من صحة البيانات المدخلة
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required' // admin أو pharmacist
+        $this->ensureAdmin($request);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'role' => ['required', Rule::in([User::ROLE_ADMIN, User::ROLE_PHARMACIST])],
+            'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        // حفظ البيانات في الجدول
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // تشفير كلمة المرور (ضروري للأمان)
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'is_active' => true // افتراضياً يكون الحساب نشطاً
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'] ?? null,
+            'role' => $validated['role'],
+            'is_active' => $validated['is_active'] ?? true,
         ]);
 
-        return response()->json(['message' => 'Saved successfully', 'user' => $user]);
+        return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user,
+        ], 201);
     }
 
-    // 3. حذف موظف
-    public function destroy($id)
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return response()->json(['message' => 'User deleted successfully']);
-    }
+        $this->ensureAdmin($request);
 
-    // تسجيل دخول
-    public function login(Request $request)
-    {
-        // 1. التأكد أن المستخدم أرسل البريد وكلمة المرور
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+        $user = User::query()->findOrFail($id);
 
-        // 2. محاولة تسجيل الدخول بالبيانات المرسلة
-        // Auth::attempt تقوم بتشفير كلمة المرور المدخلة ومقارنتها بالموجودة في القاعدة تلقائياً
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user(); // جلب بيانات المستخدم الذي نجح في الدخول
-
+        if ((int) $request->user()->getKey() === (int) $user->getKey()) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Successfully logged in !',
-                'user' => $user
-            ], 200);
+                'message' => 'You cannot deactivate your own account.',
+            ], 422);
         }
 
-        // 3. إذا كانت البيانات خاطئة
+        $user->forceFill(['is_active' => false])->save();
+        $user->tokens()->delete();
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Invalid email or password.'
-        ], 401);
+            'message' => 'User deactivated successfully.',
+            'user' => $user->fresh(),
+        ]);
+    }
+
+    public function login(Request $request): JsonResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $user = User::query()->where('email', $credentials['email'])->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials.',
+            ], 401);
+        }
+
+        if (! $user->is_active) {
+            return response()->json([
+                'message' => 'This account is inactive.',
+            ], 403);
+        }
+
+        $token = $user->createToken('pharmacy-api')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user->only(['id', 'name', 'email', 'phone', 'role', 'is_active']),
+        ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $token = $request->user()?->currentAccessToken();
+
+        if ($token !== null && method_exists($token, 'delete')) {
+            $token->delete();
+        }
+
+        return response()->json([
+            'message' => 'Logged out successfully.',
+        ]);
+    }
+
+    private function ensureAdmin(Request $request): void
+    {
+        $user = $request->user();
+
+        abort_unless($user !== null && $user->is_active && $user->isAdmin(), 403);
     }
 }
