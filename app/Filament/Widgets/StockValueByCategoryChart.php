@@ -24,6 +24,8 @@ class StockValueByCategoryChart extends ChartWidget
             ->selectRaw('COALESCE(SUM(product_batches.quantity * product_batches.purchase_price), 0) AS stock_value')
             ->leftJoin('products', 'products.category_id', '=', 'categories.id')
             ->leftJoin('product_batches', 'product_batches.product_id', '=', 'products.id')
+            ->where('product_batches.quantity', '>', 0)
+            ->whereDate('product_batches.expiry_date', '>=', today())
             ->groupBy('categories.id', 'categories.name')
             ->orderBy('categories.name')
             ->get();

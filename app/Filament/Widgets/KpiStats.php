@@ -33,7 +33,7 @@ class KpiStats extends BaseWidget
 
         $lowStockProducts = Product::query()
             ->where('is_active', true)
-            ->withSum('productBatches as batch_stock', 'quantity')
+            ->withSum(['productBatches as batch_stock' => fn ($query) => $query->sellable()], 'quantity')
             ->get()
             ->filter(fn (Product $product): bool => (int) ($product->batch_stock ?? 0) <= (int) $product->minimum_stock)
             ->count();

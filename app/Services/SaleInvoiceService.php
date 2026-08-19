@@ -65,9 +65,8 @@ class SaleInvoiceService
 
             foreach ($requestedByProduct as $productId => $requestedQuantity) {
                 $batches = ProductBatch::query()
+                    ->sellable()
                     ->where('product_id', (int) $productId)
-                    ->where('quantity', '>', 0)
-                    ->whereDate('expiry_date', '>=', today())
                     ->orderBy('expiry_date')
                     ->orderBy('id')
                     ->lockForUpdate()
@@ -170,14 +169,54 @@ class SaleInvoiceService
     }
 
     /**
-     * Sale reversal is intentionally not implemented yet.
+     * Cancel a completed sale and restore each quantity to its original batch.
      *
-     * A safe cancellation must restore batch quantities and write adjustment
-     * stock movements. Updating status only would corrupt stock and reports.
+     * The invoice row and original batches are locked so concurrent/repeated
+     * cancellation requests cannot restore stock twice.
      */
     public function cancel(SaleInvoice $invoice): SaleInvoice
     {
-        throw new RuntimeException('Sale cancellation is not implemented safely yet.');
+        $userId = $this->currentUserId();
+
+        return DB::transaction(function () use ($invoice, $userId) {
+            $lockedInvoice = SaleInvoice::query()
+                ->whereKey($invoice->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedInvoice->status === 'cancelled') {
+                return $lockedInvoice->load(['saleItems.product', 'saleItems.productBatch']);
+            }
+
+            if ($lockedInvoice->status !== 'completed') {
+                throw new RuntimeException('Only completed sales can be cancelled.');
+            }
+
+            $lockedInvoice->loadMissing('saleItems');
+
+            foreach ($lockedInvoice->saleItems as $item) {
+                $batch = ProductBatch::query()
+                    ->whereKey($item->product_batch_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $batch->increment('quantity', (int) $item->quantity);
+
+                StockMovement::create([
+                    'product_id' => $item->product_id,
+                    'created_by' => $userId,
+                    'type' => StockMovement::TYPE_IN,
+                    'quantity' => (int) $item->quantity,
+                    'reference_type' => StockMovement::REF_SALE,
+                    'reference_id' => $lockedInvoice->getKey(),
+                    'notes' => "Sale {$lockedInvoice->invoice_number} cancelled; restored batch {$batch->batch_number}",
+                ]);
+            }
+
+            $lockedInvoice->update(['status' => 'cancelled']);
+
+            return $lockedInvoice->refresh()->load(['saleItems.product', 'saleItems.productBatch']);
+        });
     }
 
     private function currentUserId(): int

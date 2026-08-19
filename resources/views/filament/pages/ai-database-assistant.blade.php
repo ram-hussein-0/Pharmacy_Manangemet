@@ -289,7 +289,7 @@
 
         .ai-composer {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: minmax(0, 1fr) auto auto;
             gap: 10px;
             align-items: center;
             margin-top: 16px;
@@ -370,7 +370,7 @@
                 max-width: 100%;
             }
         }
-    
+
 
         /* Assistant bubble compact override */
         .ai-thread .ai-turn:not(.ai-turn-user) {
@@ -427,7 +427,7 @@
             max-width: 100% !important;
         }
 
-    
+
         .ai-bubble-assistant:has(.ai-table-wrap) {
             width: fit-content !important;
             max-width: min(760px, calc(100% - 44px)) !important;
@@ -438,7 +438,7 @@
             max-width: min(680px, calc(100% - 44px)) !important;
         }
 
-    
+
         .ai-turn-assistant .ai-bubble-rtl .ai-message-text {
             align-self: flex-end !important;
             direction: rtl !important;
@@ -455,6 +455,235 @@
         .ai-turn-assistant .ai-bubble-rtl .ai-table {
             direction: ltr !important;
         }
+
+
+        .ai-entity-trigger {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: 1px solid rgba(148, 163, 184, 0.38);
+            border-radius: 14px;
+            padding: 0 13px;
+            background: white;
+            color: rgb(71, 85, 105);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .ai-entity-trigger:hover,
+        .ai-entity-trigger.is-open {
+            border-color: rgba(245, 158, 11, 0.7);
+            color: rgb(146, 64, 14);
+            background: rgb(255, 251, 235);
+        }
+
+        .dark .ai-entity-trigger {
+            background: rgb(24, 24, 27);
+            border-color: rgb(63, 63, 70);
+            color: rgb(212, 212, 216);
+        }
+
+        .dark .ai-entity-trigger:hover,
+        .dark .ai-entity-trigger.is-open {
+            background: rgb(69, 26, 3);
+            border-color: rgb(180, 83, 9);
+            color: rgb(253, 230, 138);
+        }
+
+        .ai-entity-popover {
+            width: min(100%, 560px);
+            margin: 14px 0 0 auto;
+            padding: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+        }
+
+        .dark .ai-entity-popover {
+            background: rgb(24, 24, 27);
+            border-color: rgb(63, 63, 70);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+        }
+
+        .ai-entity-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 11px;
+        }
+
+        .ai-entity-heading strong { color: rgb(30, 41, 59); font-size: 13px; }
+        .ai-entity-heading span { color: rgb(100, 116, 139); font-size: 11px; line-height: 1.45; }
+        .dark .ai-entity-heading strong { color: rgb(244, 244, 245); }
+        .dark .ai-entity-heading span { color: rgb(161, 161, 170); }
+
+        .ai-entity-close {
+            border: 0;
+            border-radius: 9px;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            background: rgba(148, 163, 184, 0.12);
+            color: rgb(71, 85, 105);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .ai-entity-controls { display: grid; grid-template-columns: 180px 1fr; gap: 8px; }
+        .ai-entity-select,
+        .ai-entity-search { width: 100%; border: 1px solid rgba(148,163,184,.38); border-radius: 12px; padding: 8px 11px; font-size: 13px; background: white; color: rgb(15,23,42); outline: none; }
+        .ai-entity-select:focus,
+        .ai-entity-search:focus { border-color: rgba(245,158,11,.75); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+        .dark .ai-entity-select,
+        .dark .ai-entity-search { background: rgb(39,39,42); border-color: rgb(82,82,91); color: rgb(250,250,250); }
+
+        .ai-entity-list { display: grid; gap: 6px; max-height: 280px; overflow-y: auto; margin-top: 10px; padding-right: 2px; scrollbar-width: thin; }
+        .ai-entity-chip { width: 100%; display: grid; gap: 2px; text-align: left; border: 1px solid rgba(148,163,184,.22); border-radius: 11px; padding: 9px 10px; background: rgba(248,250,252,.78); cursor: pointer; }
+        .ai-entity-chip:hover { border-color: rgba(245,158,11,.65); background: rgb(255,251,235); }
+        .ai-entity-chip strong { color: rgb(30,41,59); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ai-entity-chip small { color: rgb(100,116,139); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dark .ai-entity-chip { background: rgb(39,39,42); border-color: rgb(63,63,70); }
+        .dark .ai-entity-chip:hover { background: rgb(41,37,36); border-color: rgb(180,83,9); }
+        .dark .ai-entity-chip strong { color: rgb(244,244,245); }
+        .dark .ai-entity-chip small { color: rgb(161,161,170); }
+        .ai-entity-empty { padding: 14px 4px 5px; color: rgb(100,116,139); font-size: 12px; text-align: center; }
+
+        @media (max-width: 720px) {
+            .ai-entity-controls { grid-template-columns: 1fr; }
+            .ai-entity-popover { width: 100%; }
+        }
+
+
+
+        /* Production answer typography: safe Markdown + mixed Arabic/English direction. */
+        .ai-markdown {
+            display: grid;
+            gap: 0;
+            width: 100%;
+            color: inherit;
+            line-height: 1.72;
+            overflow-wrap: anywhere;
+        }
+
+        .ai-markdown > :first-child { margin-top: 0 !important; }
+        .ai-markdown > :last-child { margin-bottom: 0 !important; }
+        .ai-markdown p { margin: 0 0 .72rem; }
+        .ai-markdown h1,
+        .ai-markdown h2,
+        .ai-markdown h3,
+        .ai-markdown h4 {
+            margin: .9rem 0 .45rem;
+            color: rgb(30, 41, 59);
+            font-weight: 780;
+            letter-spacing: -.015em;
+        }
+        .ai-markdown h1 { font-size: 1.18rem; }
+        .ai-markdown h2 { font-size: 1.08rem; }
+        .ai-markdown h3,
+        .ai-markdown h4 { font-size: 1rem; }
+        .ai-markdown strong { color: rgb(146, 64, 14); font-weight: 780; }
+        .ai-markdown em { color: rgb(71, 85, 105); }
+        .ai-markdown ul,
+        .ai-markdown ol { margin: .3rem 0 .8rem; }
+        .ai-markdown ul[dir="rtl"],
+        .ai-markdown ol[dir="rtl"] { padding-right: 1.45rem; padding-left: 0; }
+        .ai-markdown ul[dir="ltr"],
+        .ai-markdown ol[dir="ltr"] { padding-left: 1.45rem; padding-right: 0; }
+        .ai-markdown li { margin: .22rem 0; }
+        .ai-markdown [dir="rtl"] { text-align: right; unicode-bidi: isolate; }
+        .ai-markdown [dir="ltr"] { text-align: left; unicode-bidi: isolate; }
+        .ai-markdown [dir="auto"] { text-align: start; unicode-bidi: plaintext; }
+        .ai-markdown blockquote {
+            margin: .7rem 0;
+            padding: .55rem .85rem;
+            border-inline-start: 3px solid rgba(245, 158, 11, .62);
+            border-radius: .6rem;
+            background: rgba(255, 247, 237, .75);
+            color: rgb(71, 85, 105);
+        }
+        .ai-markdown code {
+            direction: ltr;
+            unicode-bidi: isolate;
+            border-radius: .42rem;
+            padding: .1rem .34rem;
+            background: rgba(120, 53, 15, .08);
+            color: rgb(124, 45, 18);
+            font-size: .9em;
+        }
+        .ai-markdown pre {
+            max-width: 100%;
+            overflow-x: auto;
+            margin: .75rem 0;
+            border: 1px solid rgba(245, 158, 11, .16);
+            border-radius: .85rem;
+            padding: .8rem;
+            background: rgb(255, 251, 235);
+            text-align: left;
+        }
+        .ai-markdown pre code { padding: 0; background: transparent; }
+        .ai-markdown table {
+            width: 100%;
+            margin: .8rem 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border: 1px solid rgba(245, 158, 11, .18);
+            border-radius: .85rem;
+        }
+        .ai-markdown th,
+        .ai-markdown td { padding: .55rem .68rem; border-bottom: 1px solid rgba(245, 158, 11, .13); }
+        .ai-markdown th { background: rgba(255, 247, 237, .86); font-weight: 750; }
+        .ai-markdown tr:last-child td { border-bottom: 0; }
+        .ai-markdown a { color: rgb(180, 83, 9); text-decoration: underline; text-underline-offset: 2px; }
+
+        .ai-stream-text {
+            min-width: 9rem;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            unicode-bidi: plaintext;
+            line-height: 1.65;
+        }
+
+        /* Warm pharmacy surface treatment for the assistant itself. */
+        .ai-hero {
+            border-color: rgba(245, 158, 11, .24) !important;
+            background:
+                radial-gradient(circle at top left, rgba(245, 158, 11, .20), transparent 31%),
+                radial-gradient(circle at top right, rgba(251, 191, 36, .10), transparent 30%),
+                linear-gradient(135deg, rgba(255, 253, 247, .99), rgba(255, 247, 237, .96)) !important;
+        }
+        .ai-thread,
+        .ai-bubble-assistant,
+        .ai-entity-popover,
+        .ai-input,
+        .ai-entity-trigger,
+        .ai-entity-select,
+        .ai-entity-search {
+            background-color: rgb(255, 253, 247) !important;
+            border-color: rgba(245, 158, 11, .18) !important;
+        }
+        .ai-entity-chip { background: rgba(255, 251, 235, .72) !important; }
+
+        .dark .ai-markdown h1,
+        .dark .ai-markdown h2,
+        .dark .ai-markdown h3,
+        .dark .ai-markdown h4 { color: rgb(250, 250, 250); }
+        .dark .ai-markdown strong { color: rgb(253, 186, 116); }
+        .dark .ai-markdown em { color: rgb(212, 212, 216); }
+        .dark .ai-markdown blockquote,
+        .dark .ai-markdown pre,
+        .dark .ai-markdown th { background: rgba(69, 26, 3, .28); }
+        .dark .ai-markdown code { color: rgb(254, 215, 170); background: rgba(120, 53, 15, .26); }
+        .dark .ai-markdown table,
+        .dark .ai-markdown th,
+        .dark .ai-markdown td { border-color: rgba(180, 83, 9, .28); }
 
     </style>
 
@@ -507,10 +736,10 @@
                     <div class="ai-icon">✦</div>
 
                     <div>
-                        <h2 class="ai-title">Safe Pharmacy Data Assistant</h2>
+                        <h2 class="ai-title">Pharmacy AI Assistant</h2>
                         <div class="ai-subtitle">
-                            Ask about stock, expiry, sales, profit, suppliers, products, or stock movements.
-                            The assistant classifies your question into a fixed intent and reads only approved pharmacy data.
+                            Ask naturally about inventory, sales, purchases, suppliers, expenses, staff activity, and other pharmacy data.
+                            Answers are based on verified read-only information from the system.
                         </div>
 
                         <div class="ai-examples">
@@ -518,32 +747,32 @@
                             <span class="ai-example">expiring batches</span>
                             <span class="ai-example">today sales</span>
                             <span class="ai-example">profit this month</span>
-                            <span class="ai-example">find product by name</span>
+                            <span class="ai-example">product: "Panadol"</span>
+                            <span class="ai-example">supplier: "Exact supplier"</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="ai-badge">
-                    ● Intent-only mode
+                    ● Connected · Read-only
                 </div>
             </div>
 
             @if (blank(config('llm.api_key')))
                 <div class="ai-warning">
-                    <strong>LLM is not configured.</strong>
-                    Set <code>LLM_PROVIDER</code>, <code>LLM_MODEL</code>, and <code>LLM_API_KEY</code> in your local <code>.env</code>.
-                    The page is available, but real classification will return a safe fallback until the key is configured.
+                    <strong>AI service is currently unavailable.</strong>
+                    Verified fallback answers remain available for supported requests while the AI connection is restored.
                 </div>
             @endif
 
-            <div class="ai-thread" wire:loading.class="opacity-60" wire:target="send">
+
+            <div class="ai-thread">
                 @foreach ($messages as $message)
                     @php
                         $isUser = ($message['role'] ?? 'assistant') === 'user';
                         $content = trim((string) ($message['content'] ?? ''));
                         $rows = $message['rows'] ?? [];
                         $columns = $message['columns'] ?? [];
-                        $isAssistantRtl = ! $isUser && preg_match('/\p{Arabic}/u', $content) === 1;
                     @endphp
 
                     <div class="ai-turn {{ $isUser ? 'ai-turn-user' : 'ai-turn-assistant' }}">
@@ -556,12 +785,14 @@
                             </div>
                         @endif
 
-                        <div class="ai-bubble {{ $isUser ? 'ai-bubble-user' : 'ai-bubble-assistant' }} {{ $isAssistantRtl ? 'ai-bubble-rtl' : '' }}" dir="auto">
-                            @if (! $isUser && ! empty($message['intent']) && $message['intent'] !== 'unknown')
-                                <div class="ai-intent" dir="ltr"><bdi>{{ $message['intent'] }}</bdi></div>
+                        <div class="ai-bubble {{ $isUser ? 'ai-bubble-user' : 'ai-bubble-assistant' }}" dir="auto">
+                            @if ($isUser)
+                                <div class="ai-message-text" dir="auto">{{ $content }}</div>
+                            @else
+                                <div class="ai-markdown">
+                                    {!! app(\App\Services\Ai\AiMarkdownRenderer::class)->render($content) !!}
+                                </div>
                             @endif
-
-                            <div class="ai-message-text" dir="auto">{{ $content }}</div>
 
                             @if (! $isUser && ! empty($rows) && ! empty($columns))
                                 <div class="ai-table-wrap">
@@ -611,11 +842,56 @@
                         </svg>
                     </div>
 
-                    <div class="ai-bubble ai-bubble-assistant">
-                        Thinking…
+                    <div class="ai-bubble ai-bubble-assistant ai-stream-bubble">
+                        <div class="ai-stream-text ai-markdown" wire:stream="ai-answer-stream" dir="auto">Analyzing verified data…</div>
                     </div>
                 </div>
             </div>
+
+            @if ($entityPickerOpen)
+                <div class="ai-entity-popover" wire:key="ai-entity-popover">
+                    <div class="ai-entity-heading">
+                        <div>
+                            <strong>Insert database entity</strong><br>
+                            <span>Search only when needed. Selecting a result inserts the canonical database name into the question.</span>
+                        </div>
+                        <button type="button" wire:click="closeEntityPicker" class="ai-entity-close" aria-label="Close entity picker">×</button>
+                    </div>
+
+                    <div class="ai-entity-controls">
+                        <select wire:model.live="entityType" class="ai-entity-select" aria-label="Entity type">
+                            @foreach ($this->entityTypes() as $type => $label)
+                                <option value="{{ $type }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+
+                        <input
+                            type="search"
+                            wire:model.live.debounce.300ms="entitySearch"
+                            placeholder="Search the selected entity..."
+                            class="ai-entity-search"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <div class="ai-entity-list">
+                        @forelse ($this->getEntityOptions() as $entity)
+                            <button
+                                type="button"
+                                wire:key="ai-entity-{{ $entityType }}-{{ $entity['id'] }}"
+                                wire:click="insertEntity('{{ $entityType }}', {{ $entity['id'] }})"
+                                class="ai-entity-chip"
+                                title="Insert {{ $entity['name'] }}"
+                            >
+                                <strong dir="auto">{{ $entity['name'] }}</strong>
+                                <small dir="auto">{{ $entity['meta'] }}</small>
+                            </button>
+                        @empty
+                            <div class="ai-entity-empty">No matching entities.</div>
+                        @endforelse
+                    </div>
+                </div>
+            @endif
 
             <div class="ai-composer">
                 <input
@@ -628,6 +904,16 @@
                     class="ai-input"
                     autocomplete="off"
                 />
+
+                <button
+                    type="button"
+                    wire:click="toggleEntityPicker"
+                    class="ai-entity-trigger {{ $entityPickerOpen ? 'is-open' : '' }}"
+                    aria-expanded="{{ $entityPickerOpen ? 'true' : 'false' }}"
+                >
+                    <span aria-hidden="true">＋</span>
+                    Insert entity
+                </button>
 
                 <x-filament::button
                     type="button"
@@ -643,8 +929,7 @@
             <div class="ai-footnote">
                 <span>⚠</span>
                 <span>
-                    No SQL is generated from user input. The LLM can only classify the question and optionally summarize
-                    rows returned by fixed Eloquent handlers.
+                    Answers use verified read-only pharmacy data. The assistant cannot modify inventory, sales, users, or other records.
                 </span>
             </div>
         </div>

@@ -81,7 +81,7 @@ class LowStockAlerts extends Page implements HasTable
         return Product::query()
             ->where('is_active', true)
             ->with('category')
-            ->withSum('productBatches as batch_stock', 'quantity')
+            ->withSum(['productBatches as batch_stock' => fn ($query) => $query->sellable()], 'quantity')
             ->havingRaw('COALESCE(batch_stock, 0) <= minimum_stock');
     }
 }

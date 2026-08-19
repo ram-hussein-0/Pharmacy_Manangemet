@@ -12,6 +12,14 @@ class Expense extends Model
 
     public const TYPES = ['rent', 'utilities', 'salary', 'maintenance', 'other'];
 
+    public const TYPE_OPTIONS = [
+        'rent' => 'Rent',
+        'utilities' => 'Utilities',
+        'salary' => 'Salary',
+        'maintenance' => 'Maintenance',
+        'other' => 'Other',
+    ];
+
     protected $fillable = [
         'created_by', 'title', 'type', 'amount', 'expense_date', 'notes',
     ];

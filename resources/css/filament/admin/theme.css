@@ -1,0 +1,301 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+:root {
+    --pharmacy-ink: #172033;
+    --pharmacy-muted: #64748b;
+    --pharmacy-line: rgba(148, 163, 184, .24);
+    --pharmacy-surface: rgba(255, 255, 255, .92);
+    --pharmacy-accent: #d97706;
+    --pharmacy-accent-soft: #fff7ed;
+}
+
+.pharmacy-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .72rem;
+    color: var(--pharmacy-ink);
+    min-width: 0;
+}
+
+.pharmacy-brand-mark {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: .8rem;
+    color: var(--pharmacy-accent);
+    background: linear-gradient(145deg, #fff7ed, #fffbeb);
+    border: 1px solid rgba(245, 158, 11, .22);
+    box-shadow: 0 8px 22px rgba(180, 83, 9, .10);
+}
+
+.pharmacy-brand-mark svg {
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.pharmacy-brand-copy {
+    display: grid;
+    line-height: 1.02;
+}
+
+.pharmacy-brand-copy strong {
+    font-size: .94rem;
+    font-weight: 750;
+    letter-spacing: -.015em;
+}
+
+.pharmacy-brand-copy small {
+    margin-top: .19rem;
+    color: var(--pharmacy-muted);
+    font-size: .66rem;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.fi-body {
+    background:
+        radial-gradient(circle at 82% -10%, rgba(245, 158, 11, .08), transparent 24rem),
+        #f8fafc;
+}
+
+.fi-topbar nav {
+    border-bottom-color: rgba(226, 232, 240, .78);
+    background: rgba(255, 255, 255, .88);
+    backdrop-filter: blur(18px);
+}
+
+.fi-sidebar {
+    border-inline-end-color: rgba(226, 232, 240, .78);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .98), rgba(248, 250, 252, .96));
+}
+
+.fi-sidebar-item-button,
+.fi-user-menu-trigger {
+    border-radius: .85rem;
+}
+
+.fi-user-menu-trigger {
+    border: 1px solid rgba(148, 163, 184, .24);
+    background: rgba(255, 255, 255, .82);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, .045);
+}
+
+.fi-user-menu-trigger:hover {
+    border-color: rgba(245, 158, 11, .38);
+    background: #fff;
+}
+
+.fi-simple-layout {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 12% 10%, rgba(245, 158, 11, .16), transparent 24rem),
+        radial-gradient(circle at 90% 85%, rgba(14, 165, 233, .10), transparent 27rem),
+        linear-gradient(145deg, #fffaf2 0%, #f8fafc 48%, #eef6ff 100%);
+}
+
+.fi-simple-layout::before,
+.fi-simple-layout::after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    border-radius: 999px;
+    filter: blur(1px);
+}
+
+.fi-simple-layout::before {
+    width: 16rem;
+    height: 16rem;
+    top: -7rem;
+    right: -5rem;
+    border: 1px solid rgba(245, 158, 11, .16);
+}
+
+.fi-simple-layout::after {
+    width: 24rem;
+    height: 24rem;
+    bottom: -15rem;
+    left: -10rem;
+    border: 1px solid rgba(14, 165, 233, .12);
+}
+
+.fi-simple-main {
+    width: min(100% - 2rem, 29rem);
+    border: 1px solid rgba(255, 255, 255, .75);
+    border-radius: 1.65rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, .88);
+    box-shadow:
+        0 28px 80px rgba(15, 23, 42, .11),
+        inset 0 1px 0 rgba(255, 255, 255, .95);
+    backdrop-filter: blur(22px);
+}
+
+.fi-simple-header-heading {
+    color: var(--pharmacy-ink);
+    font-weight: 780;
+    letter-spacing: -.025em;
+}
+
+.fi-simple-header-subheading {
+    color: var(--pharmacy-muted);
+    line-height: 1.55;
+}
+
+.fi-input-wrp {
+    border-radius: .9rem;
+}
+
+.fi-btn {
+    border-radius: .9rem;
+}
+
+.dark {
+    --pharmacy-ink: #f8fafc;
+    --pharmacy-muted: #a1a1aa;
+    --pharmacy-line: rgba(82, 82, 91, .65);
+    --pharmacy-surface: rgba(24, 24, 27, .94);
+    --pharmacy-accent-soft: #292524;
+}
+
+.dark .fi-body {
+    background:
+        radial-gradient(circle at 82% -10%, rgba(245, 158, 11, .08), transparent 24rem),
+        #09090b;
+}
+
+.dark .fi-topbar nav,
+.dark .fi-sidebar {
+    border-color: rgba(63, 63, 70, .82);
+    background: rgba(24, 24, 27, .91);
+}
+
+.dark .fi-user-menu-trigger {
+    border-color: rgba(82, 82, 91, .72);
+    background: rgba(39, 39, 42, .88);
+}
+
+.dark .fi-simple-layout {
+    background:
+        radial-gradient(circle at 12% 10%, rgba(245, 158, 11, .11), transparent 24rem),
+        radial-gradient(circle at 90% 85%, rgba(14, 165, 233, .08), transparent 27rem),
+        linear-gradient(145deg, #17120d 0%, #09090b 50%, #08121a 100%);
+}
+
+.dark .fi-simple-main {
+    border-color: rgba(63, 63, 70, .72);
+    background: rgba(24, 24, 27, .91);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .35);
+}
+
+.dark .pharmacy-brand-mark {
+    color: #fbbf24;
+    background: #292524;
+    border-color: rgba(180, 83, 9, .45);
+}
+
+@media (max-width: 640px) {
+    .fi-simple-main {
+        width: min(100% - 1.25rem, 29rem);
+        padding: 1.45rem;
+        border-radius: 1.35rem;
+    }
+
+    .pharmacy-brand-copy small {
+        display: none;
+    }
+}
+
+
+/* Consistent warm pharmacy surfaces across the authenticated admin panel. */
+.fi-main-ctn {
+    background:
+        radial-gradient(circle at 92% 2%, rgba(245, 158, 11, .085), transparent 27rem),
+        radial-gradient(circle at 8% 88%, rgba(251, 191, 36, .055), transparent 24rem),
+        linear-gradient(145deg, #fffdf8 0%, #fffaf1 42%, #f8fafc 100%);
+}
+
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-dropdown-panel,
+.fi-modal-window,
+.fi-sc-tabs,
+.fi-pagination {
+    border-color: rgba(245, 158, 11, .15) !important;
+    background-color: rgba(255, 253, 247, .94) !important;
+    box-shadow: 0 10px 28px rgba(120, 53, 15, .045);
+}
+
+.fi-section-header,
+.fi-ta-header,
+.fi-ta-header-ctn {
+    background-color: rgba(255, 251, 235, .62) !important;
+}
+
+.fi-input-wrp,
+.fi-select-input,
+.fi-fo-field-wrp input,
+.fi-fo-field-wrp textarea,
+.fi-fo-field-wrp select {
+    border-color: rgba(245, 158, 11, .16) !important;
+    background-color: rgba(255, 255, 255, .88) !important;
+}
+
+.fi-input-wrp:focus-within {
+    border-color: rgba(217, 119, 6, .48) !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .09) !important;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-button,
+.fi-sidebar-item-button:hover {
+    background: linear-gradient(135deg, rgba(255, 247, 237, .96), rgba(255, 251, 235, .92));
+}
+
+.fi-topbar nav {
+    background: linear-gradient(90deg, rgba(255, 253, 247, .94), rgba(255, 250, 241, .90));
+}
+
+.dark .fi-main-ctn {
+    background:
+        radial-gradient(circle at 92% 2%, rgba(245, 158, 11, .075), transparent 27rem),
+        linear-gradient(145deg, #0c0a09 0%, #11100e 42%, #09090b 100%);
+}
+
+.dark .fi-section,
+.dark .fi-ta-ctn,
+.dark .fi-wi-stats-overview-stat,
+.dark .fi-dropdown-panel,
+.dark .fi-modal-window,
+.dark .fi-sc-tabs,
+.dark .fi-pagination {
+    border-color: rgba(180, 83, 9, .22) !important;
+    background-color: rgba(28, 25, 23, .94) !important;
+}
+
+.dark .fi-section-header,
+.dark .fi-ta-header,
+.dark .fi-ta-header-ctn {
+    background-color: rgba(41, 37, 36, .88) !important;
+}
+
+.dark .fi-input-wrp,
+.dark .fi-select-input,
+.dark .fi-fo-field-wrp input,
+.dark .fi-fo-field-wrp textarea,
+.dark .fi-fo-field-wrp select {
+    border-color: rgba(180, 83, 9, .20) !important;
+    background-color: rgba(39, 39, 42, .90) !important;
+}
+
+.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-button,
+.dark .fi-sidebar-item-button:hover {
+    background: linear-gradient(135deg, rgba(69, 26, 3, .46), rgba(41, 37, 36, .94));
+}

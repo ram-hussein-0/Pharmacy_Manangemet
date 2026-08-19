@@ -21,7 +21,7 @@ class LowStockTable extends TableWidget
     {
         return Product::query()
             ->with('category')
-            ->withSum('productBatches as batch_stock', 'quantity')
+            ->withSum(['productBatches as batch_stock' => fn ($query) => $query->sellable()], 'quantity')
             ->havingRaw('COALESCE(batch_stock, 0) <= minimum_stock')
             ->orderBy('name');
     }

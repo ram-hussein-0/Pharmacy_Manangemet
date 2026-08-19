@@ -29,13 +29,7 @@ class ExpenseResource extends Resource
 
             Forms\Components\Select::make('type')
                 ->required()
-                ->options([
-                    'rent' => 'Rent',
-                    'utilities' => 'Utilities',
-                    'salaries' => 'Salaries',
-                    'supplies' => 'Supplies',
-                    'other' => 'Other',
-                ]),
+                ->options(Expense::TYPE_OPTIONS),
 
             Forms\Components\TextInput::make('amount')
                 ->required()
@@ -86,13 +80,7 @@ class ExpenseResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
-                    ->options([
-                        'rent' => 'Rent',
-                        'utilities' => 'Utilities',
-                        'salaries' => 'Salaries',
-                        'supplies' => 'Supplies',
-                        'other' => 'Other',
-                    ]),
+                    ->options(Expense::TYPE_OPTIONS),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),
